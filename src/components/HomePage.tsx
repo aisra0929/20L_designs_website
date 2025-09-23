@@ -79,9 +79,9 @@ const HomePage = () => {
                     : index === (currentSlide + 1) % heroItems.length
                     ? 'opacity-100 scale-75 translate-x-72 z-10'
                     : index === (currentSlide - 2 + heroItems.length) % heroItems.length
-                    ? 'opacity-100 scale-[.55] -translate-x-96 z-0'
+                    ? 'hidden lg:flex opacity-100 scale-[.55] lg:-translate-x-[32rem] z-0'
                     : index === (currentSlide + 2) % heroItems.length
-                    ? 'opacity-100 scale-[.55] translate-x-96 z-0'
+                    ? 'hidden lg:flex opacity-100 scale-[.55] lg:translate-x-[32rem] z-0'
                     : 'opacity-0 scale-50 z-0'
                 }`}
               >

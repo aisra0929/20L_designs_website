@@ -10,9 +10,12 @@ function generateOrderNumber() {
   return `ORD-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
 }
 
+// QR generation removed per request
+
 export default function CartModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { state, totalBirr, totalQuantity, clear } = useCart();
   const [orderId, setOrderId] = useState<string | null>(null);
+  // QR code removed
   const [phone, setPhone] = useState<string>("");
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
@@ -30,6 +33,14 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
     setPhoneError(null);
     const id = generateOrderNumber();
     setOrderId(id);
+    const details = {
+      orderId: id,
+      totalBirr: summary.totalBirr,
+      totalQuantity: summary.totalQuantity,
+      items: state.items,
+      phone: cleaned,
+      createdAt: new Date().toISOString(),
+    };
     setShowPaymentDetails(true);
   };
 
