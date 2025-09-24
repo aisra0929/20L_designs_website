@@ -1,9 +1,9 @@
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Phone as PhoneIcon, Landmark } from 'lucide-react';
+import { Phone as PhoneIcon, Landmark, X } from 'lucide-react';
 import { useCart } from '@/components/CartContext';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 function generateOrderNumber() {
   const now = new Date();
@@ -21,6 +21,11 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const summary = useMemo(() => ({ totalBirr, totalQuantity }), [totalBirr, totalQuantity]);
+
+  // Reset view when modal closes
+  useEffect(() => {
+    if (!open) setShowPaymentDetails(false);
+  }, [open]);
 
   const handlePay = async () => {
     // Require Ethiopian phone number (+251...) or 09/07 prefixed local numbers
@@ -46,8 +51,20 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass border-0 max-w-2xl p-0 overflow-hidden">
-        <div className="p-6">
+      <DialogContent className="glass border-0 max-w-2xl p-0 overflow-hidden max-h-[90vh]">
+        {/* Close (X) visible when showing details */}
+        {showPaymentDetails && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="absolute top-3 right-3 hover:bg-brand-primary/10"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="p-6 overflow-y-auto max-h-[90vh]">
           <DialogTitle className="text-xl font-semibold mb-4">Your Cart</DialogTitle>
           {state.items.length === 0 ? (
             <p className="text-muted-foreground">Your cart is empty.</p>
@@ -75,14 +92,19 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
                 {phoneError && <p className="text-sm text-red-500">{phoneError}</p>}
               </div>
 
-              <Button onClick={handlePay} className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
-                Payment Details
-              </Button>
+              {!showPaymentDetails && (
+                <Button onClick={handlePay} className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
+                  Payment Details
+                </Button>
+              )}
 
               {showPaymentDetails && (
                 <div className="mt-6 space-y-4">
                   <DialogTitle className="text-lg font-semibold">Payment Details</DialogTitle>
-                  <p className="text-sm text-muted-foreground">Select one of the shop owner’s payment options below. Please verify the details before making payment.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Please verify the account holder’s details by contacting 0929007423 prior to completing your payment.
+                    Once verification is confirmed, select one of the available payment options below to proceed.
+                  </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
                       <Landmark className="w-5 h-5 text-brand-primary" />
