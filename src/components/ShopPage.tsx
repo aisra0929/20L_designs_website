@@ -4,103 +4,18 @@ import ProductModal from '@/components/ProductModal';
 import { CartProvider } from '@/components/CartContext';
 import CartButton from '@/components/CartButton';
 import CartModal from '@/components/CartModal';
-
-// Import product images
-import tshirt1 from '@/assets/tshirt-1.png';
-import tshirt2 from '@/assets/tshirt-2.png';
-import tshirt3 from '@/assets/tshirt-3.png';
-import tshirt4 from '@/assets/tshirt-4.png';
-import hoodie1 from '@/assets/hoodie-1.png';
-import hoodie2 from '@/assets/hoodie-2.png';
-import sweatpants1 from '@/assets/sweatpants-1.png';
-import sweatpants2 from '@/assets/sweatpants-2.png';
-
-interface Product {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  description: string;
-  category: 'T-shirts' | 'Hoodies' | 'Sweatpants';
-}
+import { products as allProducts, categories, ProductItem } from '@/data/products';
+import { useShop } from '@/contexts/ShopContext';
 
 const ShopPage = () => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<'T-shirts' | 'Hoodies' | 'Sweatpants'>('T-shirts');
+  const [selectedCategory, setSelectedCategory] = useState<typeof categories[number]>('T-shirts');
   const [isVisible, setIsVisible] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { selectedProductId, setSelectedProductId } = useShop();
 
-  // Product data with all clothing categories
-  const products: Product[] = [
-    // T-shirts
-    {
-      id: 1,
-      name: "Essential Black Tee",
-      price: "500 Birr",
-      image: tshirt1,
-      category: 'T-shirts',
-      description: "Our signature black tee crafted from premium organic cotton. Minimalist design meets maximum comfort in this timeless piece that forms the foundation of any modern wardrobe."
-    },
-    {
-      id: 2,
-      name: "Pure White Essential",
-      price: "500 Birr",
-      image: tshirt2,
-      category: 'T-shirts',
-      description: "Clean, crisp, and endlessly versatile. This white tee embodies our philosophy of refined simplicity, featuring superior fabric quality and a perfect fit that elevates any look."
-    },
-    {
-      id: 3,
-      name: "Ocean Blue Minimal",
-      price: "500 Birr",
-      image: tshirt3,
-      category: 'T-shirts',
-      description: "A sophisticated navy that speaks volumes without saying a word. This premium tee combines deep color saturation with our signature soft-touch finish for effortless style."
-    },
-    {
-      id: 4,
-      name: "Storm Gray Classic",
-      price: "500 Birr",
-      image: tshirt4,
-      category: 'T-shirts',
-      description: "Understated elegance in a contemporary gray tone. Perfect for the modern minimalist, this tee offers versatility and comfort in equal measure."
-    },
-    // Hoodies
-    {
-      id: 5,
-      name: "Midnight Black Hoodie",
-      price: "700 Birr",
-      image: hoodie1,
-      category: 'Hoodies',
-      description: "Premium heavyweight hoodie crafted from organic cotton blend. Features a relaxed fit with ribbed cuffs and hem for ultimate comfort and style."
-    },
-    {
-      id: 6,
-      name: "Arctic White Hoodie",
-      price: "700 Birr",
-      image: hoodie2,
-      category: 'Hoodies',
-      description: "Clean and minimalist hoodie design in pure white. Soft fleece interior meets durable exterior for the perfect balance of comfort and longevity."
-    },
-    // Sweatpants
-    {
-      id: 7,
-      name: "Navy Comfort Sweats",
-      price: "700 Birr",
-      image: sweatpants1,
-      category: 'Sweatpants',
-      description: "Tailored sweatpants that redefine casual wear. Featuring a contemporary fit with tapered legs and premium cotton-poly blend for all-day comfort."
-    },
-    {
-      id: 8,
-      name: "Gray Minimalist Sweats",
-      price: "700 Birr",
-      image: sweatpants2,
-      category: 'Sweatpants',
-      description: "Elevated essentials in sophisticated gray. These sweatpants combine streetwear aesthetics with premium materials for effortless style."
-    }
-  ];
+  const products = allProducts;
 
   // Filter products by category
   const filteredProducts = products.filter(product => product.category === selectedCategory);
@@ -110,7 +25,20 @@ const ShopPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleProductClick = (product: Product) => {
+  // If navigated here with a preselected product id, open the modal and focus category
+  useEffect(() => {
+    if (selectedProductId) {
+      const found = products.find(p => p.id === selectedProductId) || null;
+      if (found) {
+        setSelectedCategory(found.category);
+        setSelectedProduct(found);
+        setIsModalOpen(true);
+      }
+      setSelectedProductId(null);
+    }
+  }, [selectedProductId]);
+
+  const handleProductClick = (product: ProductItem) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };
@@ -164,12 +92,12 @@ const ShopPage = () => {
         `}>
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as 'T-shirts' | 'Hoodies' | 'Sweatpants')}
+            onChange={(e) => setSelectedCategory(e.target.value as typeof categories[number])}
             className="glass px-6 py-3 rounded-xl text-lg font-medium text-foreground bg-background/50 border border-border/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all duration-300"
           >
-            <option value="T-shirts">T-shirts</option>
-            <option value="Hoodies">Hoodies</option>
-            <option value="Sweatpants">Sweatpants</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
         </div>
       </div>

@@ -11,7 +11,8 @@ const LandingAnimation = ({ onComplete, darkMode = false }: LandingAnimationProp
 
   useEffect(() => {
     setSlideIn(true);
-    const pauseDuration = 8000;
+    const isSmall = typeof window !== 'undefined' && window.innerWidth < 640;
+    const pauseDuration = isSmall ? 5000 : 8000;
 
     const fadeTimer = setTimeout(() => setStage("fade"), pauseDuration);
     const completeTimer = setTimeout(() => {
@@ -36,8 +37,9 @@ const LandingAnimation = ({ onComplete, darkMode = false }: LandingAnimationProp
     opacity: stage === "fade" ? 0 : 1,
   });
 
-  // Generate stars
-  const stars = Array.from({ length: 50 }).map(() => ({
+  // Generate stars (fewer on small screens)
+  const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 640;
+  const stars = Array.from({ length: isSmallScreen ? 30 : 50 }).map(() => ({
     top: Math.random() * 100 + "%",
     left: Math.random() * 100 + "%",
     size: Math.random() * 2 + 1 + "px",
@@ -49,7 +51,7 @@ const LandingAnimation = ({ onComplete, darkMode = false }: LandingAnimationProp
   const starColor = darkMode ? "rgba(0,0,0,0.6)" : "#fff";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background z-50 overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-background z-50 overflow-hidden px-4">
       {/* Stars */}
       {stars.map((star, idx) => (
         <div
@@ -70,48 +72,47 @@ const LandingAnimation = ({ onComplete, darkMode = false }: LandingAnimationProp
       ))}
 
       {/* Letters */}
-      <div className="relative w-full h-24 flex justify-center items-center">
-        {/* ISRAEL */}
-        <div
-          className="flex space-x-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
-          style={wordStyle(true)}
-        >
-          {israelLetters.map((ch, idx) => (
-            <span
-              key={idx}
-              style={{
-                transitionDelay: `${(israelLetters.length - idx - 1) * 150}ms`,
-                textShadow: "0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.3)",
-                animation: "pulse 2000ms ease-in-out infinite alternate",
-                animationDelay: `${idx * 150}ms`,
-              }}
-            >
-              {ch}
-            </span>
-          ))}
-        </div>
+      <div className="relative w-full flex justify-center items-center">
+        <div className="flex flex-col sm:flex-row items-center sm:items-baseline gap-4 sm:gap-6">
+          {/* ISRAEL */}
+          <div
+            className="flex space-x-1 sm:space-x-2 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+            style={wordStyle(true)}
+          >
+            {israelLetters.map((ch, idx) => (
+              <span
+                key={idx}
+                style={{
+                  transitionDelay: `${(israelLetters.length - idx - 1) * 150}ms`,
+                  textShadow: "0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.3)",
+                  animation: "pulse 2000ms ease-in-out infinite alternate",
+                  animationDelay: `${idx * 150}ms`,
+                }}
+              >
+                {ch}
+              </span>
+            ))}
+          </div>
 
-        {/* Space between words */}
-        <div className="w-8" />
-
-        {/* DESIGNS */}
-        <div
-          className="flex space-x-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
-          style={wordStyle(false)}
-        >
-          {designsLetters.map((ch, idx) => (
-            <span
-              key={idx}
-              style={{
-                transitionDelay: `${idx * 150}ms`,
-                textShadow: "0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.3)",
-                animation: "pulse 2000ms ease-in-out infinite alternate",
-                animationDelay: `${idx * 150}ms`,
-              }}
-            >
-              {ch}
-            </span>
-          ))}
+          {/* DESIGNS */}
+          <div
+            className="flex space-x-1 sm:space-x-2 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+            style={wordStyle(false)}
+          >
+            {designsLetters.map((ch, idx) => (
+              <span
+                key={idx}
+                style={{
+                  transitionDelay: `${idx * 150}ms`,
+                  textShadow: "0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.3)",
+                  animation: "pulse 2000ms ease-in-out infinite alternate",
+                  animationDelay: `${idx * 150}ms`,
+                }}
+              >
+                {ch}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 

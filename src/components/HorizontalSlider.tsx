@@ -7,6 +7,7 @@ interface Product {
   price: string;
   image: string;
   description?: string;
+  category?: string;
 }
 
 interface HorizontalSliderProps {
@@ -111,11 +112,12 @@ const HorizontalSlider = ({ products, onProductClick }: HorizontalSliderProps) =
         <div className="flex-shrink-0 w-20" />
         
         {products.map((product) => (
-          <TShirtCard
-            key={product.id}
-            product={product}
-            onClick={() => onProductClick(product)}
-          />
+          <div key={product.id} className="min-w-[220px] sm:min-w-[260px] md:min-w-[280px] lg:min-w-[300px]">
+            <TShirtCard
+              product={product}
+              onClick={() => onProductClick(product)}
+            />
+          </div>
         ))}
         
         {/* Add some spacing at the end */}

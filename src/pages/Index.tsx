@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ShopProvider } from '@/contexts/ShopContext';
 import Navigation from '@/components/Navigation';
 import LandingAnimation from '@/components/LandingAnimation';
 import HomePage from '@/components/HomePage';
@@ -31,21 +32,23 @@ const Index = () => {
 
   return (
     <ThemeProvider defaultTheme="light">
-      <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-        {/* Landing Animation */}
-        {showLanding && <LandingAnimation onComplete={handleLandingComplete} />}
+      <ShopProvider>
+        <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+          {/* Landing Animation */}
+          {showLanding && <LandingAnimation onComplete={handleLandingComplete} />}
 
-        {/* Navigation */}
-        {!showLanding && (
-          <Navigation 
-            currentPage={currentPage} 
-            onPageChange={setCurrentPage} 
-          />
-        )}
+          {/* Navigation */}
+          {!showLanding && (
+            <Navigation 
+              currentPage={currentPage} 
+              onPageChange={setCurrentPage} 
+            />
+          )}
 
-        {/* Page Content */}
-        {!showLanding && renderCurrentPage()}
-      </div>
+          {/* Page Content */}
+          {!showLanding && renderCurrentPage()}
+        </div>
+      </ShopProvider>
     </ThemeProvider>
   );
 };

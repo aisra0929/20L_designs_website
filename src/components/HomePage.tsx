@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useShop } from '@/contexts/ShopContext';
+import { products as shopProducts, inferCategoryFromText } from '@/data/products';
 
 // Import hero carousel images
 import heroImage1 from '@/assets/hero/T-1.png';
@@ -14,16 +16,16 @@ const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   
-  const heroItems = [
+  const heroItems = useMemo(() => [
     { id: 1, image: heroImage1, name: "Grey Addis in Space", price: "600 Birr" },
     { id: 2, image: heroImage2, name: "Plain Green Hoodie", price: "700 Birr" },
     { id: 3, image: heroImage3, name: "Plain Black Hoodie", price: "700 Birr" },
     { id: 4, image: heroImage4, name: "Plain White Long sleeve", price: "500 Birr" },
     { id: 5, image: heroImage5, name: "Black Lion in Clouds", price: "600 Birr" },
-    // Added two more items (reusing assets until new images are provided)
-    { id: 6, image: heroImage1, name: "Grey Addis Variant", price: "600 Birr" },
-    { id: 7, image: heroImage2, name: "Green Hoodie Variant", price: "700 Birr" }
-  ];
+  ], []);
+
+  const visibleCountRef = useRef(1);
+  const { setSelectedProductId } = useShop();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 300);
@@ -42,6 +44,46 @@ const HomePage = () => {
     const interval = setInterval(nextSlide, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  // Responsive items count logic: 1 (small), 3 (md), 5 (lg)
+  useEffect(() => {
+    const handler = () => {
+      const w = window.innerWidth;
+      visibleCountRef.current = w >= 1024 ? 5 : w >= 768 ? 3 : 1;
+    };
+    handler();
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  // Swipe support
+  const touchStartX = useRef<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) nextSlide(); else prevSlide();
+    }
+    touchStartX.current = null;
+  };
+
+  const handleItemClick = (name: string) => {
+    // Try exact match to hero dummy product; fallback to inferred category
+    const exact = shopProducts.find(p => p.name === name);
+    if (exact) {
+      setSelectedProductId(exact.id);
+    } else {
+      const inferred = inferCategoryFromText(name) || 'T-shirts';
+      const match = shopProducts.find(p => p.category === inferred);
+      if (match) setSelectedProductId(match.id);
+    }
+    // navigation handled by parent via nav menu; here we can optionally dispatch an event
+    const evt = new CustomEvent('navigateToShop');
+    window.dispatchEvent(evt);
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -67,7 +109,7 @@ const HomePage = () => {
         {/* Carousel Container (scaled to ~80%) */}
         <div className={`relative z-20 flex items-center justify-center w-full max-w-[88rem] px-4 mx-auto transition-all duration-1000 delay-600 scale-[0.8]`}>
           {/* Carousel Items */}
-          <div className="relative w-full max-w-5xl mx-auto">
+          <div className="relative w-full max-w-5xl mx-auto" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
             {heroItems.map((item, index) => (
               <div
                 key={item.id}
@@ -86,7 +128,7 @@ const HomePage = () => {
                 }`}
               >
                 {/* Product Image */}
-                <div className="relative group cursor-pointer">
+                <div className="relative group cursor-pointer" onClick={() => handleItemClick(item.name)}>
                   <img
                     src={item.image}
                     alt={item.name}
