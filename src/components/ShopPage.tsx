@@ -6,6 +6,7 @@ import CartButton from '@/components/CartButton';
 import CartModal from '@/components/CartModal';
 import { products as allProducts, categories, ProductItem } from '@/data/products';
 import { useShop } from '@/contexts/ShopContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ShopPage = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
@@ -14,6 +15,7 @@ const ShopPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { selectedProductId, setSelectedProductId } = useShop();
+  const { t, translateProduct } = useLanguage();
 
   const products = allProducts;
 
@@ -31,7 +33,7 @@ const ShopPage = () => {
       const found = products.find(p => p.id === selectedProductId) || null;
       if (found) {
         setSelectedCategory(found.category);
-        setSelectedProduct(found);
+        setSelectedProduct(translateProduct(found));
         setIsModalOpen(true);
       }
       setSelectedProductId(null);
@@ -78,7 +80,7 @@ const ShopPage = () => {
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
       `}>
         <h2 className="text-4xl md:text-6xl font-light mb-6 text-foreground">
-          The Collection
+          {t('shop.title')}
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
           Each piece is crafted with precision, designed for the future, and built to last forever.
@@ -96,7 +98,12 @@ const ShopPage = () => {
             className="glass px-6 py-3 rounded-xl text-lg font-medium text-foreground bg-background/50 border border-border/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all duration-300"
           >
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{
+                c === 'T-shirts' ? t('shop.category.tshirts') :
+                c === 'Hoodies' ? t('shop.category.hoodies') :
+                c === 'Sweatpants' ? t('shop.category.sweatpants') :
+                t('shop.category.longsleeves')
+              }</option>
             ))}
           </select>
         </div>
@@ -109,7 +116,7 @@ const ShopPage = () => {
         ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}
       `}>
         <HorizontalSlider 
-          products={filteredProducts} 
+          products={filteredProducts.map(translateProduct)} 
           onProductClick={handleProductClick}
         />
       </div>
@@ -122,13 +129,13 @@ const ShopPage = () => {
       `}>
         <div className="text-center mb-16">
           <h3 className="text-3xl md:text-4xl font-light mb-6 text-foreground">
-            All Collections
+            {t('shop.all')}
           </h3>
         </div>
         
         {/* Display all products from all categories */}
         <HorizontalSlider 
-          products={products} 
+          products={products.map(translateProduct)} 
           onProductClick={handleProductClick}
         />
       </div>

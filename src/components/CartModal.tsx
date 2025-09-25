@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Phone as PhoneIcon, Landmark, X } from 'lucide-react';
 import { useCart } from '@/components/CartContext';
 import { useEffect, useMemo, useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function generateOrderNumber() {
   const now = new Date();
@@ -21,6 +22,7 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const summary = useMemo(() => ({ totalBirr, totalQuantity }), [totalBirr, totalQuantity]);
+  const { t } = useLanguage();
 
   // Reset view when modal closes
   useEffect(() => {
@@ -65,9 +67,9 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
           </Button>
         )}
         <div className="p-6 overflow-y-auto max-h-[90vh]">
-          <DialogTitle className="text-xl font-semibold mb-4">Your Cart</DialogTitle>
+          <DialogTitle className="text-xl font-semibold mb-4">{t('cart.title')}</DialogTitle>
           {state.items.length === 0 ? (
-            <p className="text-muted-foreground">Your cart is empty.</p>
+            <p className="text-muted-foreground">{t('cart.empty')}</p>
           ) : (
             <div className="space-y-4">
               {state.items.map((it) => (
@@ -81,35 +83,32 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
                 </div>
               ))}
               <div className="flex items-center justify-between pt-4 border-t">
-                <div className="text-sm text-muted-foreground">Total ({summary.totalQuantity} items)</div>
+                <div className="text-sm text-muted-foreground">{t('cart.total')} ({summary.totalQuantity} {t('cart.items')})</div>
                 <div className="text-lg font-bold">{summary.totalBirr} Birr</div>
               </div>
 
               {/* Phone Input */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Phone Number</label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. +251 9XXXXXXXX or 09XXXXXXXX" />
+                <label className="text-sm font-medium">{t('cart.phone.label')}</label>
+                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t('cart.phone.placeholder')} />
                 {phoneError && <p className="text-sm text-red-500">{phoneError}</p>}
               </div>
 
               {!showPaymentDetails && (
                 <Button onClick={handlePay} className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
-                  Payment Details
+                  {t('btn.paymentDetails')}
                 </Button>
               )}
 
               {showPaymentDetails && (
                 <div className="mt-6 space-y-4">
-                  <DialogTitle className="text-lg font-semibold">Payment Details</DialogTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Please verify the account holder’s details by contacting 0929007423 prior to completing your payment.
-                    Once verification is confirmed, select one of the available payment options below to proceed.
-                  </p>
+                  <DialogTitle className="text-lg font-semibold">{t('btn.paymentDetails')}</DialogTitle>
+                  <p className="text-sm text-muted-foreground">{t('payment.instructions')}</p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
                       <Landmark className="w-5 h-5 text-brand-primary" />
                       <div>
-                        <div className="font-medium">Bank Transfer</div>
+                        <div className="font-medium">{t('payment.bank')}</div>
                         <div className="text-sm">Abyssinia - 58456648</div>
                         <div className="text-sm">CBE - 1000096604827</div>
                       </div>
@@ -117,13 +116,13 @@ export default function CartModal({ open, onOpenChange }: { open: boolean; onOpe
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
                       <PhoneIcon className="w-5 h-5 text-brand-secondary" />
                       <div>
-                        <div className="font-medium">Telebirr</div>
+                        <div className="font-medium">{t('payment.telebirr')}</div>
                         <div className="text-sm">+251 929007423</div>
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <Button onClick={() => { clear(); onOpenChange(false); }} variant="secondary" className="w-full">Close</Button>
+                    <Button onClick={() => { clear(); onOpenChange(false); }} variant="secondary" className="w-full">{t('btn.close')}</Button>
                   </div>
                 </div>
               )}

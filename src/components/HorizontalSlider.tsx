@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import TShirtCard from './TShirtCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Product {
   id: number;
@@ -17,6 +18,7 @@ interface HorizontalSliderProps {
 
 const HorizontalSlider = ({ products, onProductClick }: HorizontalSliderProps) => {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -86,7 +88,7 @@ const HorizontalSlider = ({ products, onProductClick }: HorizontalSliderProps) =
       <div className="flex justify-center mb-8">
         <div className="flex items-center gap-2 glass px-4 py-2 rounded-full">
           <div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse" />
-          <span className="text-sm text-muted-foreground">Scroll horizontally or drag</span>
+          <span className="text-sm text-muted-foreground">{t('slider.scrollHint')}</span>
           <div className="w-2 h-2 bg-brand-secondary rounded-full animate-pulse" />
         </div>
       </div>

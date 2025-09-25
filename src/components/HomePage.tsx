@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShop } from '@/contexts/ShopContext';
 import { products as shopProducts, inferCategoryFromText } from '@/data/products';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-// Import hero carousel images
+// Hero images
 import heroImage1 from '@/assets/hero/T-1.png';
 import heroImage2 from '@/assets/hero/t-2.png';
 import heroImage3 from '@/assets/hero/t-3.png';
 import heroImage4 from '@/assets/hero/t-4.png';
 import heroImage5 from '@/assets/hero/t-5.png';
-import heroBg from '@/assets/hero-bg.jpg';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  
+
   const heroItems = useMemo(() => [
     { id: 1, image: heroImage1, name: "Grey Addis in Space", price: "600 Birr" },
     { id: 2, image: heroImage2, name: "Plain Green Hoodie", price: "700 Birr" },
@@ -26,19 +25,15 @@ const HomePage = () => {
 
   const visibleCountRef = useRef(1);
   const { setSelectedProductId } = useShop();
+  const { translateProduct } = useLanguage();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroItems.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroItems.length) % heroItems.length);
-  };
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % heroItems.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroItems.length) % heroItems.length);
 
   useEffect(() => {
     const interval = setInterval(nextSlide, 4000);
@@ -64,52 +59,66 @@ const HomePage = () => {
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current == null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) nextSlide(); else prevSlide();
-    }
+    if (Math.abs(dx) > 40) dx < 0 ? nextSlide() : prevSlide();
     touchStartX.current = null;
   };
 
   const handleItemClick = (name: string) => {
-    // Try exact match to hero dummy product; fallback to inferred category
     const exact = shopProducts.find(p => p.name === name);
-    if (exact) {
-      setSelectedProductId(exact.id);
-    } else {
+    if (exact) setSelectedProductId(exact.id);
+    else {
       const inferred = inferCategoryFromText(name) || 'T-shirts';
       const match = shopProducts.find(p => p.category === inferred);
       if (match) setSelectedProductId(match.id);
     }
-    // navigation handled by parent via nav menu; here we can optionally dispatch an event
-    const evt = new CustomEvent('navigateToShop');
-    window.dispatchEvent(evt);
+    window.dispatchEvent(new CustomEvent('navigateToShop'));
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Hero Section with Background Image */}
-      <div 
+      {/* Hero Section */}
+      <div
         className="h-screen flex items-center justify-center relative"
-        style={{
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        style={{ backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
       >
-        {/* Background Overlay */}
+        {/* Overlay */}
         <div className="absolute inset-0" />
 
-        {/* Background Brand Text */}
-        <div className={`absolute inset-0 flex justify-center z-10 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          {/* <h1 className="text-[6rem] md:text-[8rem] lg:text-[13rem] font-condensed font-extrabold mt-10 select-none pointer-events-none tracking-tighter opacity-75">
-            ISRAEL DESIGNS
-          </h1> */}
-        </div>
+        {/* Carousel Container */}
+        <div className="relative z-20 w-full max-w-[88rem] mx-auto flex items-center justify-center scale-[0.8] md:scale-90 transition-all duration-1000 delay-600">
 
-        {/* Carousel Container (scaled to ~80%) */}
-        <div className={`relative z-20 flex items-center justify-center w-full max-w-[88rem] px-4 mx-auto transition-all duration-1000 delay-600 scale-[0.8]`}>
           {/* Carousel Items */}
           <div className="relative w-full max-w-5xl mx-auto" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+
+            {/* Nav Arrows (Adaptive and outside carousel items) */}
+            <button
+              aria-label="Previous"
+              onClick={prevSlide}
+              className="
+                hidden md:flex
+                absolute top-1/2 -translate-y-1/2
+                -left-20 md:left-0 lg:-left-52
+                p-3 rounded-full glass hover:scale-110
+                z-30
+              "
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <button
+              aria-label="Next"
+              onClick={nextSlide}
+              className="
+                hidden md:flex
+                absolute top-1/2 -translate-y-1/2
+                right-20 md:right-0 lg:-right-52
+                p-3 rounded-full glass hover:scale-110
+                z-30
+              "
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
             {heroItems.map((item, index) => (
               <div
                 key={item.id}
@@ -127,7 +136,6 @@ const HomePage = () => {
                     : 'opacity-0 scale-50 z-0'
                 }`}
               >
-                {/* Product Image */}
                 <div className="relative group cursor-pointer" onClick={() => handleItemClick(item.name)}>
                   <img
                     src={item.image}
@@ -136,10 +144,11 @@ const HomePage = () => {
                   />
                 </div>
 
-                {/* Product Info (only center item) */}
                 {index === currentSlide && (
                   <div className="text-center mt-8 text-foreground">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-2">{item.name}</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">
+                      {translateProduct({ id: 0, name: item.name, price: item.price, image: item.image, description: '', category: 'T-shirts' }).name}
+                    </h3>
                     <p className="text-xl md:text-2xl font-light opacity-90">{item.price}</p>
                   </div>
                 )}

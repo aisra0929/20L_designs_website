@@ -1,7 +1,8 @@
-import { Sun, Moon, Menu } from 'lucide-react';
+import { Sun, Moon, Menu, Globe } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavigationProps {
   currentPage: string;
@@ -11,6 +12,7 @@ interface NavigationProps {
 const Navigation = ({ currentPage, onPageChange }: NavigationProps) => {
   const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   const navLinks = [
     { name: 'Home', id: 'home' },
@@ -49,7 +51,7 @@ const Navigation = ({ currentPage, onPageChange }: NavigationProps) => {
                   ${currentPage === link.id ? 'text-brand-primary' : 'text-foreground/80'}
                 `}
               >
-                {link.name}
+                {t(`nav.${link.id}`)}
                 {currentPage === link.id && (
                   <div className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full" />
                 )}
@@ -59,29 +61,50 @@ const Navigation = ({ currentPage, onPageChange }: NavigationProps) => {
         </div>
 
         {/* Right: Theme toggle (always visible) */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="relative hover:bg-brand-primary/10 hover:scale-110 transition-all duration-300"
-        >
-          <div className="relative w-5 h-5">
-            <Sun
-              className={`absolute inset-0 h-5 w-5 transition-all duration-500 ${
-                theme === 'light' 
-                  ? 'rotate-0 scale-100 opacity-100' 
-                  : 'rotate-90 scale-0 opacity-0'
-              }`}
-            />
-            <Moon
-              className={`absolute inset-0 h-5 w-5 transition-all duration-500 ${
-                theme === 'dark' 
-                  ? 'rotate-0 scale-100 opacity-100' 
-                  : '-rotate-90 scale-0 opacity-0'
-              }`}
-            />
-          </div>
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Language toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+            className="flex items-center gap-2 hover:bg-brand-primary/10"
+            aria-label="Toggle language"
+          >
+            <Globe className="h-4 w-4" />
+            <span className="hidden sm:inline text-xs font-medium">
+              {language === 'en' ? t('lang.english') : t('lang.amharic')}
+            </span>
+            <span className="sm:hidden text-xs font-semibold">
+              {language === 'en' ? t('lang.ENG') : t('lang.AMH')}
+            </span>
+          </Button>
+
+          {/* Theme toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="relative hover:bg-brand-primary/10 hover:scale-110 transition-all duration-300"
+            aria-label="Toggle theme"
+          >
+            <div className="relative w-5 h-5">
+              <Sun
+                className={`absolute inset-0 h-5 w-5 transition-all duration-500 ${
+                  theme === 'light' 
+                    ? 'rotate-0 scale-100 opacity-100' 
+                    : 'rotate-90 scale-0 opacity-0'
+                }`}
+              />
+              <Moon
+                className={`absolute inset-0 h-5 w-5 transition-all duration-500 ${
+                  theme === 'dark' 
+                    ? 'rotate-0 scale-100 opacity-100' 
+                    : '-rotate-90 scale-0 opacity-0'
+                }`}
+              />
+            </div>
+          </Button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}
@@ -97,7 +120,7 @@ const Navigation = ({ currentPage, onPageChange }: NavigationProps) => {
                 hover:bg-muted/30
               `}
             >
-              {link.name}
+              {t(`nav.${link.id}`)}
             </button>
           ))}
         </div>

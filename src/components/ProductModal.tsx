@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/components/CartContext';
 
 interface Product {
@@ -22,6 +23,7 @@ const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
   const { addItem } = useCart();
+  const { t } = useLanguage();
 
   const sizes = ['S', 'M', 'L', 'XL'];
 
@@ -137,7 +139,7 @@ const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
               className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary hover:shadow-glow transition-all duration-300 hover:scale-[1.02] text-white font-medium py-6"
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Add to Cart - {product.price}
+              {t('btn.addToCart')} - {product.price}
             </Button>
           </div>
         </div>
