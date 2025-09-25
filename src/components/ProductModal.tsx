@@ -46,8 +46,9 @@ const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass border-0 max-w-4xl p-0 overflow-hidden">
-        <div className="flex flex-col md:flex-row">
+      <DialogContent className="glass border-0 max-w-4xl p-0 overflow-hidden max-h-[90vh]">
+        <div className="overflow-y-auto max-h-[90vh]">
+          <div className="flex flex-col md:flex-row">
           {/* Product Image */}
           <div className="md:w-1/2 bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10 p-8 flex items-center justify-center">
             <div className="relative hover-3d">
@@ -142,6 +143,7 @@ const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
               {t('btn.addToCart')} - {product.price}
             </Button>
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
