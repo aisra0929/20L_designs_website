@@ -36,7 +36,7 @@ const HomePage = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroItems.length) % heroItems.length);
 
   useEffect(() => {
-    const interval = setInterval(nextSlide, 4000);
+    const interval = setInterval(nextSlide, 6000);
     return () => clearInterval(interval);
   }, []);
 

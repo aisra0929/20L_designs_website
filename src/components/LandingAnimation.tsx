@@ -28,7 +28,7 @@ const LandingAnimation = ({ onComplete, darkMode = false }: LandingAnimationProp
 
   if (stage === "complete") return null;
 
-  const israelLetters = ["I", "S", "R", "A", "E", "L"];
+  const israelLetters = ["I", "S", "R", "A"];
   const designsLetters = ["D", "E", "S", "I", "G", "N", "S"];
 
   const wordStyle = (isLeft: boolean) => ({
